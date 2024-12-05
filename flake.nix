@@ -60,6 +60,7 @@
               "installPhase"
             ];
             buildPhase = ''
+              runHook preBuild
               export PATH="${pkgs.lib.makeBinPath buildInputs}";
 
               mkdir -p out
@@ -67,10 +68,14 @@
 
               env SOURCE_DATE_EPOCH=${toString self.lastModified} \
                   HOME=$(mktemp -d) make
+
+              runHook postBuild
             '';
             installPhase = ''
+              runHook preInstall
               mkdir -p $out
               cp -r out $out
+              runHook postInstall
             '';
           };
         };
