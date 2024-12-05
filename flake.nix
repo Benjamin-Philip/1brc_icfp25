@@ -31,13 +31,22 @@
           ]
         );
 
+        ar5iv-bindings = builtins.fetchTarball {
+          url = "https://github.com/dginev/ar5iv-bindings/archive/refs/tags/0.3.0.tar.gz";
+          sha256 = "0isqy8b16py0apgjbl7bdjph9ilhmm479i2g0mlzr2rgai308gl7";
+        };
+
         misc = with pkgs; [
-          coreutils # For `env` and `mktemp`
-          gnumake # For building the project
           bash # For latexmk's `-usepretex`
+          coreutils # For `env` and `mktemp`
+          gnumake
+          perlPackages.LaTeXML
         ];
 
-        inputs = [ tex ] ++ misc;
+        inputs = [
+          tex
+          ar5iv-bindings
+        ] ++ misc;
       in
       rec {
         packages = {
@@ -52,8 +61,12 @@
             ];
             buildPhase = ''
               export PATH="${pkgs.lib.makeBinPath buildInputs}";
-              env HOME=$(mktemp -d) SOURCE_DATE_EPOCH=${toString self.lastModified} \
-                  make out/paper.pdf
+
+              mkdir -p out
+              cp -r ${ar5iv-bindings} out/ar5iv-bindings
+
+              env SOURCE_DATE_EPOCH=${toString self.lastModified} \
+                  HOME=$(mktemp -d) make
             '';
             installPhase = ''
               mkdir -p $out
