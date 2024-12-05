@@ -12,6 +12,7 @@ DEPS_FILE=$(OUT_DIR)/.deps
 LATEXMK = latexmk -pdflua -outdir=$(OUT_DIR) \
 	-auxdir=$(AUX_DIR) -emulate-aux-dir \
 	-recorder -use-make -deps -deps-out=$(DEPS_FILE) \
+	-usepretex="\pdfvariable suppressoptionalinfo 512\relax" \
 	-e 'warn qq(In Makefile, turn off custom dependencies\n);' \
 	-e '@cus_dep_list = ();' \
 	-e 'show_cus_dep();'
