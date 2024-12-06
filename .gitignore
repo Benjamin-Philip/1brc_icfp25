@@ -26,3 +26,5 @@ ibrc-*.tar
 /tmp/
 out
 result
+.nix-*
+.direnv

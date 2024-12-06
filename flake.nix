@@ -39,21 +39,32 @@
         misc = with pkgs; [
           bash # For latexmk's `-usepretex`
           coreutils # For `env` and `mktemp`
+          glibcLocales # For elixir and LaTeX
           gnumake
           perlPackages.LaTeXML
         ];
 
-        inputs = [
+        buildInputs = [
           tex
           ar5iv-bindings
         ] ++ misc;
+
+        erlang = pkgs.beam.packagesWith pkgs.beam.interpreters.erlang_27;
+        devInputs = [ erlang.elixir ] ++ buildInputs;
+
+        ar5iv-setup = ''
+          mkdir -p out
+          cp -rn ${ar5iv-bindings} out/ar5iv-bindings
+        '';
+
       in
       rec {
         packages = {
           paper = pkgs.stdenvNoCC.mkDerivation rec {
+            inherit buildInputs;
+
             name = "paper";
             src = self;
-            buildInputs = inputs;
             phases = [
               "unpackPhase"
               "buildPhase"
@@ -63,8 +74,7 @@
               runHook preBuild
               export PATH="${pkgs.lib.makeBinPath buildInputs}";
 
-              mkdir -p out
-              cp -r ${ar5iv-bindings} out/ar5iv-bindings
+              ${ar5iv-setup}
 
               env SOURCE_DATE_EPOCH=${toString self.lastModified} \
                   HOME=$(mktemp -d) make
@@ -80,6 +90,31 @@
           };
         };
         defaultPackage = packages.paper;
+
+        devShell = pkgs.mkShellNoCC {
+          buildInputs = devInputs;
+          shellHook = ''
+            # this allows mix to work on the local directory
+            mkdir -p .nix-mix .nix-hex
+            export MIX_HOME=$PWD/.nix-mix
+            export HEX_HOME=$PWD/.nix-mix
+
+            # make hex from Nixpkgs available
+            # `mix local.hex` will install hex into MIX_HOME and should take precedence
+            export MIX_PATH="${erlang.hex}/lib/erlang/lib/hex/ebin"
+            export PATH=$MIX_HOME/bin:$HEX_HOME/bin:$PATH
+
+            # keep your shell history in iex
+            export ERL_AFLAGS="-kernel shell_history enabled"
+
+            # correct date in LaTeX
+            export SOURCE_DATE_EPOCH=${toString self.lastModified}
+
+            ${ar5iv-setup}
+            chmod -R +w out/ar5iv-bindings
+          '';
+        };
+
         formatter = nixpkgs.legacyPackages.${system}.nixfmt-rfc-style;
       }
     );
