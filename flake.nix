@@ -65,7 +65,7 @@
       in
       rec {
         packages = {
-          paper = pkgs.stdenvNoCC.mkDerivation rec {
+          default = pkgs.stdenvNoCC.mkDerivation rec {
             inherit buildInputs;
 
             name = "paper";
@@ -94,30 +94,31 @@
             '';
           };
         };
-        defaultPackage = packages.paper;
 
-        devShell = pkgs.mkShellNoCC {
-          buildInputs = devInputs;
-          shellHook = ''
-            # this allows mix to work on the local directory
-            mkdir -p .nix-mix .nix-hex
-            export MIX_HOME=$PWD/.nix-mix
-            export HEX_HOME=$PWD/.nix-mix
+        devShells = {
+          default = pkgs.mkShellNoCC {
+            buildInputs = devInputs;
+            shellHook = ''
+              # this allows mix to work on the local directory
+              mkdir -p .nix-mix .nix-hex
+              export MIX_HOME=$PWD/.nix-mix
+              export HEX_HOME=$PWD/.nix-mix
 
-            # make hex from Nixpkgs available
-            # `mix local.hex` will install hex into MIX_HOME and should take precedence
-            export MIX_PATH="${erlang.hex}/lib/erlang/lib/hex/ebin"
-            export PATH=$MIX_HOME/bin:$HEX_HOME/bin:$PATH
+              # make hex from Nixpkgs available
+              # `mix local.hex` will install hex into MIX_HOME and should take precedence
+              export MIX_PATH="${erlang.hex}/lib/erlang/lib/hex/ebin"
+              export PATH=$MIX_HOME/bin:$HEX_HOME/bin:$PATH
 
-            # keep your shell history in iex
-            export ERL_AFLAGS="-kernel shell_history enabled"
+              # keep your shell history in iex
+              export ERL_AFLAGS="-kernel shell_history enabled"
 
-            # correct date in LaTeX
-            export SOURCE_DATE_EPOCH=${toString self.lastModified}
+              # correct date in LaTeX
+              export SOURCE_DATE_EPOCH=${toString self.lastModified}
 
-            ${ar5iv-setup}
-            chmod -R +w out/ar5iv-bindings
-          '';
+              ${ar5iv-setup}
+              chmod -R +w out/ar5iv-bindings
+            '';
+          };
         };
 
         formatter = nixfmt;
