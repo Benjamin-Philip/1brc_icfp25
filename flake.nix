@@ -36,6 +36,11 @@
           sha256 = "0isqy8b16py0apgjbl7bdjph9ilhmm479i2g0mlzr2rgai308gl7";
         };
 
+        ar5iv-setup = ''
+          mkdir -p out
+          cp -rn ${ar5iv-bindings} out/ar5iv-bindings
+        '';
+
         misc = with pkgs; [
           bash # For latexmk's `-usepretex`
           coreutils # For `env` and `mktemp`
@@ -49,13 +54,13 @@
           ar5iv-bindings
         ] ++ misc;
 
-        erlang = pkgs.beam.packagesWith pkgs.beam.interpreters.erlang_27;
-        devInputs = [ erlang.elixir ] ++ buildInputs;
+        nixfmt = nixpkgs.legacyPackages.${system}.nixfmt-rfc-style;
 
-        ar5iv-setup = ''
-          mkdir -p out
-          cp -rn ${ar5iv-bindings} out/ar5iv-bindings
-        '';
+        erlang = pkgs.beam.packagesWith pkgs.beam.interpreters.erlang_27;
+        devInputs = [
+          erlang.elixir
+          nixfmt
+        ] ++ buildInputs;
 
       in
       rec {
@@ -115,7 +120,7 @@
           '';
         };
 
-        formatter = nixpkgs.legacyPackages.${system}.nixfmt-rfc-style;
+        formatter = nixfmt;
       }
     );
 }

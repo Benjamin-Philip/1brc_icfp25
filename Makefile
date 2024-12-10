@@ -7,6 +7,7 @@
 PAPER_DIR=paper
 OUT_DIR=out
 AUX_DIR=$(OUT_DIR)/aux
+EMPTY_DIR=$(OUT_DIR)/empty
 DEPS_FILE=$(OUT_DIR)/.deps
 
 LATEXMK = latexmk -pdflua -outdir=$(OUT_DIR) \
@@ -23,7 +24,7 @@ LATEXMK = latexmk -pdflua -outdir=$(OUT_DIR) \
 
 all: $(OUT_DIR)/paper.pdf $(OUT_DIR)/paper.html
 
-$(OUT_DIR)/paper.pdf: $(PAPER_DIR)/paper.tex $(mix_src)
+$(OUT_DIR)/paper.pdf: $(PAPER_DIR)/paper.tex $(EMPTY_DIR)/mix-test
 	@mkdir -p $(OUT_DIR)
 	$(LATEXMK) -lualatex='lualatex -interaction=batchmode' $<
 
@@ -55,5 +56,39 @@ synctex: $(OUT_DIR)/paper.pdf
 .PHONY: clean
 clean:
 	-rm -rf $(OUT_DIR)
+
+#########
+# Tests #
+#########
+
+mix_src = $(wildcard **/*.ex) mix.exs
+
+.PHONY: test
+test: mix-test mix-formatted nix-check nix-formatted
+
+.PHONY: mix-test
+mix-test: $(EMPTY_DIR)/mix-test
+$(EMPTY_DIR)/mix-test: $(mix_src)
+	mix test
+	@mkdir -p $(EMPTY_DIR)
+	@touch $@
+
+.PHONY: mix-formatted
+mix-formatted: $(EMPTY_DIR)/mix-formatted
+$(EMPTY_DIR)/mix-formatted: $(mix_src)
+	mix format --check-formatted
+	@mkdir -p $(EMPTY_DIR)
+	@touch $@
+
+.PHONY: nix-check
+nix-check:
+	nix flake check --all-systems
+
+.PHONY: nix-formatted
+nix-formatted: $(EMPTY_DIR)/nix-formatted
+$(EMPTY_DIR)/nix-formatted: flake.nix
+	nixfmt -c flake.nix
+	@mkdir -p $(EMPTY_DIR)
+	@touch $@
 
 # end
