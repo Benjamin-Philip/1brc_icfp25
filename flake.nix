@@ -57,10 +57,11 @@
         nixfmt = nixpkgs.legacyPackages.${system}.nixfmt-rfc-style;
 
         erlang = pkgs.beam.packagesWith pkgs.beam.interpreters.erlang_27;
+        act = if builtins.getEnv "CI" != "true" then [ pkgs.act ] else [ ];
         devInputs = [
           erlang.elixir
           nixfmt
-        ] ++ buildInputs;
+        ] ++ act ++ buildInputs;
 
       in
       rec {

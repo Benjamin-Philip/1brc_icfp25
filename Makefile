@@ -24,7 +24,7 @@ LATEXMK = latexmk -pdflua -outdir=$(OUT_DIR) \
 
 all: $(OUT_DIR)/paper.pdf $(OUT_DIR)/paper.html
 
-$(OUT_DIR)/paper.pdf: $(PAPER_DIR)/paper.tex $(EMPTY_DIR)/mix-test
+$(OUT_DIR)/paper.pdf: $(PAPER_DIR)/paper.tex
 	@mkdir -p $(OUT_DIR)
 	$(LATEXMK) -lualatex='lualatex -interaction=batchmode' $<
 
