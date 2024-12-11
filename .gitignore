@@ -25,3 +25,6 @@ ibrc-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 out
+result
+.nix-*
+.direnv
