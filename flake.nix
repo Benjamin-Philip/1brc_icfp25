@@ -61,6 +61,7 @@
         devInputs = [
           erlang.elixir
           nixfmt
+          pkgs.tex-fmt
         ] ++ act ++ buildInputs;
 
       in

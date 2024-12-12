@@ -28,6 +28,8 @@ $(OUT_DIR)/paper.pdf: $(PAPER_DIR)/paper.tex
 	@mkdir -p $(OUT_DIR)
 	$(LATEXMK) -lualatex='lualatex -interaction=batchmode' $<
 
+.PHONY: html
+html: $(OUT_DIR)/paper.html
 $(OUT_DIR)/paper.html: $(OUT_DIR)/paper.pdf $(OUT_DIR)/ar5iv-bindings
 	latexmlc \
 		--preload=[nobibtex,ids,localrawstyles,nobreakuntex,magnify=1.8,zoomout=1.8,tokenlimit=249999999,iflimit=3599999,absorblimit=1299999,pushbacklimit=599999]latexml.sty \
@@ -64,7 +66,25 @@ clean:
 mix_src = $(wildcard **/*.ex) mix.exs
 
 .PHONY: test
-test: mix nix
+test: latex mix nix
+
+# LaTeX #
+
+.PHONY: latex
+latex: latex-formatted
+
+.PHONY: latex-formatted
+latex-formatted: $(EMPTY_DIR)/latex-formatted
+$(EMPTY_DIR)/latex-formatted: **/*.tex
+	tex-fmt -c $^
+	@mkdir -p $(EMPTY_DIR)
+	@touch $@
+
+.PHONY: latex-pdf
+latex-pdf: $(OUT_DIR)/paper.pdf
+
+.PHONY: latex-html
+latex-html: $(OUT_DIR)/paper.html
 
 # Mix #
 
@@ -119,7 +139,11 @@ $(EMPTY_DIR)/nix-formatted: flake.nix
 # CI #
 
 .PHONY: ci
-ci: ci-mix ci-nix
+ci: ci-latex ci-mix ci-nix
+
+.PHONY: ci-latex
+ci-latex:
+	act -W '.github/workflows/latex-ci.yml'
 
 .PHONY: ci-mix
 ci-mix:
