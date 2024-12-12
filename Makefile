@@ -59,6 +59,28 @@ synctex: $(OUT_DIR)/paper.pdf
 clean:
 	-rm -rf $(OUT_DIR)
 
+##########
+# Format #
+##########
+
+.PHONY: format
+format: latex-format mix-format nix-format
+
+.PHONY: latex-format
+latex-format: $(EMPTY_DIR)/latex-format
+$(EMPTY_DIR)/latex-format: **/*.tex
+	tex-fmt $^
+
+.PHONY: mix-format
+mix-format: $(EMPTY_DIR)/mix-format
+$(EMPTY_DIR)/mix-format: $(mix_src)
+	mix format
+
+.PHONY: nix-format
+nix-format: $(EMPTY_DIR)/nix-format
+$(EMPTY_DIR)/nix-format: flake.nix
+	nix fmt
+
 #########
 # Tests #
 #########
@@ -74,8 +96,7 @@ test: latex mix nix
 latex: latex-formatted
 
 .PHONY: latex-formatted
-latex-formatted: $(EMPTY_DIR)/latex-formatted
-$(EMPTY_DIR)/latex-formatted: **/*.tex
+latex-formatted:  **/*.tex
 	tex-fmt -c $^
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
@@ -99,8 +120,7 @@ $(EMPTY_DIR)/mix-test: $(mix_src) $(EMPTY_DIR)/mix-deps
 	@touch $@
 
 .PHONY: mix-formatted
-mix-formatted: $(EMPTY_DIR)/mix-formatted
-$(EMPTY_DIR)/mix-formatted: $(mix_src)
+mix-formatted: $(mix_src)
 	mix format --check-formatted
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
@@ -130,8 +150,7 @@ nix-check:
 	nix flake check --all-systems
 
 .PHONY: nix-formatted
-nix-formatted: $(EMPTY_DIR)/nix-formatted
-$(EMPTY_DIR)/nix-formatted: flake.nix
+nix-formatted: flake.nix
 	nixfmt -c flake.nix
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
