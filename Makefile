@@ -22,13 +22,13 @@ LATEXMK = latexmk -pdflua -outdir=$(OUT_DIR) \
 
 -include $(DEPS_FILE)
 
-all: $(OUT_DIR)/paper.pdf $(OUT_DIR)/paper.html
+all: $(OUT_DIR)/paper.pdf $(OUT_DIR)/index.html
 
 $(OUT_DIR)/paper.pdf: $(PAPER_DIR)/paper.tex
 	@mkdir -p $(OUT_DIR)
 	$(LATEXMK) -lualatex='lualatex -interaction=batchmode' $<
 
-$(OUT_DIR)/paper.html: $(OUT_DIR)/paper.pdf $(OUT_DIR)/ar5iv-bindings
+$(OUT_DIR)/index.html: $(OUT_DIR)/paper.pdf $(OUT_DIR)/ar5iv-bindings
 	latexmlc \
 		--preload=[nobibtex,ids,localrawstyles,nobreakuntex,magnify=1.8,zoomout=1.8,tokenlimit=249999999,iflimit=3599999,absorblimit=1299999,pushbacklimit=599999]latexml.sty \
 		--preload=ar5iv.sty \
@@ -57,6 +57,28 @@ synctex: $(OUT_DIR)/paper.pdf
 clean:
 	-rm -rf $(OUT_DIR)
 
+##########
+# Format #
+##########
+
+.PHONY: format
+format: latex-format mix-format nix-format
+
+.PHONY: latex-format
+latex-format: $(EMPTY_DIR)/latex-format
+$(EMPTY_DIR)/latex-format: **/*.tex
+	tex-fmt $^
+
+.PHONY: mix-format
+mix-format: $(EMPTY_DIR)/mix-format
+$(EMPTY_DIR)/mix-format: $(mix_src)
+	mix format
+
+.PHONY: nix-format
+nix-format: $(EMPTY_DIR)/nix-format
+$(EMPTY_DIR)/nix-format: flake.nix
+	nix fmt
+
 #########
 # Tests #
 #########
@@ -64,31 +86,88 @@ clean:
 mix_src = $(wildcard **/*.ex) mix.exs
 
 .PHONY: test
-test: mix-test mix-formatted nix-check nix-formatted
+test: latex mix nix
+
+# LaTeX #
+
+.PHONY: latex
+latex: latex-formatted
+
+.PHONY: latex-formatted
+latex-formatted:  **/*.tex
+	tex-fmt -c $^
+	@mkdir -p $(EMPTY_DIR)
+	@touch $@
+
+.PHONY: latex-pdf
+latex-pdf: $(OUT_DIR)/paper.pdf
+
+.PHONY: latex-html
+latex-html: $(OUT_DIR)/index.html
+
+# Mix #
+
+.PHONY: mix
+mix: mix-test mix-formatted mix-compiles
 
 .PHONY: mix-test
 mix-test: $(EMPTY_DIR)/mix-test
-$(EMPTY_DIR)/mix-test: $(mix_src)
+$(EMPTY_DIR)/mix-test: $(mix_src) $(EMPTY_DIR)/mix-deps
 	mix test
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
 
 .PHONY: mix-formatted
-mix-formatted: $(EMPTY_DIR)/mix-formatted
-$(EMPTY_DIR)/mix-formatted: $(mix_src)
+mix-formatted: $(mix_src)
 	mix format --check-formatted
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
+
+.PHONY: mix-compiles
+mix-compiles: $(EMPTY_DIR)/mix-compiles
+$(EMPTY_DIR)/mix-compiles: $(mix_src) $(EMPTY_DIR)/mix-deps
+	mix compile --warnings-as-errors
+	@mkdir -p $(EMPTY_DIR)
+	@touch $@
+
+.PHONY: mix-deps
+mix-deps: $(EMPTY_DIR)/mix-deps
+$(EMPTY_DIR)/mix-deps: mix.exs mix.lock
+	mix deps.get && mix deps.compile
+	@mkdir -p $(EMPTY_DIR)
+	@touch $@
+
+
+# Nix #
+
+.PHONY: nix
+nix: nix-check nix-formatted
 
 .PHONY: nix-check
 nix-check:
 	nix flake check --all-systems
 
 .PHONY: nix-formatted
-nix-formatted: $(EMPTY_DIR)/nix-formatted
-$(EMPTY_DIR)/nix-formatted: flake.nix
+nix-formatted: flake.nix
 	nixfmt -c flake.nix
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
+
+# CI #
+
+.PHONY: ci
+ci: ci-latex ci-mix ci-nix
+
+.PHONY: ci-latex
+ci-latex:
+	act -W '.github/workflows/latex-ci.yml'
+
+.PHONY: ci-mix
+ci-mix:
+	act -W '.github/workflows/elixir-ci.yml'
+
+.PHONY: ci-nix
+ci-nix:
+	act -W '.github/workflows/nix-ci.yml'
 
 # end
