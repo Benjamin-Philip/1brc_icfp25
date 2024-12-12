@@ -64,11 +64,16 @@ clean:
 mix_src = $(wildcard **/*.ex) mix.exs
 
 .PHONY: test
-test: mix-test mix-formatted nix-check nix-formatted
+test: mix nix
+
+# Mix #
+
+.PHONY: mix
+mix: mix-test mix-formatted mix-compiles
 
 .PHONY: mix-test
 mix-test: $(EMPTY_DIR)/mix-test
-$(EMPTY_DIR)/mix-test: $(mix_src)
+$(EMPTY_DIR)/mix-test: $(mix_src) $(EMPTY_DIR)/mix-deps
 	mix test
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
@@ -80,6 +85,26 @@ $(EMPTY_DIR)/mix-formatted: $(mix_src)
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
 
+.PHONY: mix-compiles
+mix-compiles: $(EMPTY_DIR)/mix-compiles
+$(EMPTY_DIR)/mix-compiles: $(mix_src) $(EMPTY_DIR)/mix-deps
+	mix compile --warnings-as-errors
+	@mkdir -p $(EMPTY_DIR)
+	@touch $@
+
+.PHONY: mix-deps
+mix-deps: $(EMPTY_DIR)/mix-deps
+$(EMPTY_DIR)/mix-deps: mix.exs mix.lock
+	mix deps.get && mix deps.compile
+	@mkdir -p $(EMPTY_DIR)
+	@touch $@
+
+
+# Nix #
+
+.PHONY: nix
+nix: nix-check nix-formatted
+
 .PHONY: nix-check
 nix-check:
 	nix flake check --all-systems
@@ -90,5 +115,18 @@ $(EMPTY_DIR)/nix-formatted: flake.nix
 	nixfmt -c flake.nix
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
+
+# CI #
+
+.PHONY: ci
+ci: ci-mix ci-nix
+
+.PHONY: ci-mix
+ci-mix:
+	act -W '.github/workflows/elixir-ci.yml'
+
+.PHONY: ci-nix
+ci-nix:
+	act -W '.github/workflows/nix-ci.yml'
 
 # end
