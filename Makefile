@@ -22,15 +22,13 @@ LATEXMK = latexmk -pdflua -outdir=$(OUT_DIR) \
 
 -include $(DEPS_FILE)
 
-all: $(OUT_DIR)/paper.pdf $(OUT_DIR)/paper.html
+all: $(OUT_DIR)/paper.pdf $(OUT_DIR)/index.html
 
 $(OUT_DIR)/paper.pdf: $(PAPER_DIR)/paper.tex
 	@mkdir -p $(OUT_DIR)
 	$(LATEXMK) -lualatex='lualatex -interaction=batchmode' $<
 
-.PHONY: html
-html: $(OUT_DIR)/paper.html
-$(OUT_DIR)/paper.html: $(OUT_DIR)/paper.pdf $(OUT_DIR)/ar5iv-bindings
+$(OUT_DIR)/index.html: $(OUT_DIR)/paper.pdf $(OUT_DIR)/ar5iv-bindings
 	latexmlc \
 		--preload=[nobibtex,ids,localrawstyles,nobreakuntex,magnify=1.8,zoomout=1.8,tokenlimit=249999999,iflimit=3599999,absorblimit=1299999,pushbacklimit=599999]latexml.sty \
 		--preload=ar5iv.sty \
@@ -105,7 +103,7 @@ latex-formatted:  **/*.tex
 latex-pdf: $(OUT_DIR)/paper.pdf
 
 .PHONY: latex-html
-latex-html: $(OUT_DIR)/paper.html
+latex-html: $(OUT_DIR)/index.html
 
 # Mix #
 
