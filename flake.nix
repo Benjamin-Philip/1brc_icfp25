@@ -58,11 +58,14 @@
 
         erlang = pkgs.beam.packagesWith pkgs.beam.interpreters.erlang_27;
         act = if builtins.getEnv "CI" != "true" then [ pkgs.act ] else [ ];
-        devInputs = [
-          erlang.elixir
-          nixfmt
-          pkgs.tex-fmt
-        ] ++ act ++ buildInputs;
+        devInputs =
+          [
+            erlang.elixir
+            nixfmt
+            pkgs.tex-fmt
+          ]
+          ++ act
+          ++ buildInputs;
 
       in
       rec {
