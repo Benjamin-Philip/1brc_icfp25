@@ -57,6 +57,50 @@ synctex: $(OUT_DIR)/paper.pdf
 clean:
 	-rm -rf $(OUT_DIR)
 
+################
+# Weather Data #
+################
+WD_DIR = weather_data
+
+$(WD_DIR)/1K.txt:
+	@mkdir -p $(WD_DIR)
+	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1K\")"
+
+$(WD_DIR)/10K.txt:
+	@mkdir -p $(WD_DIR)
+	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10K\")"
+
+$(WD_DIR)/100K.txt:
+	@mkdir -p $(WD_DIR)
+	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100K\")"
+
+$(WD_DIR)/1M.txt:
+	@mkdir -p $(WD_DIR)
+	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1M\")"
+
+$(WD_DIR)/10M.txt:
+	@mkdir -p $(WD_DIR)
+	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10M\")"
+
+$(WD_DIR)/100M.txt:
+	@mkdir -p $(WD_DIR)
+	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100M\")"
+
+$(WD_DIR)/1B.txt:
+	@mkdir -p $(WD_DIR)
+	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1B\")"
+
+
+.PHONY: wd_dir_clean
+wd_dir_clean:
+	-rm -rf $(WD_DIR)
+
+.PHONY: wd_all
+.NOTPARALLEL: wd_all
+wd_all: $(WD_DIR)/1K.txt $(WD_DIR)/10K.txt $(WD_DIR)/100K.txt \
+		$(WD_DIR)/1M.txt $(WD_DIR)/10M.txt $(WD_DIR)/100M.txt \
+		$(WD_DIR)/1B.txt
+
 ##########
 # Format #
 ##########
@@ -88,7 +132,9 @@ mix_src = $(wildcard **/*.ex) mix.exs
 .PHONY: test
 test: latex mix nix
 
+#########
 # LaTeX #
+#########
 
 .PHONY: latex
 latex: latex-formatted
@@ -105,7 +151,9 @@ latex-pdf: $(OUT_DIR)/paper.pdf
 .PHONY: latex-html
 latex-html: $(OUT_DIR)/index.html
 
+#######
 # Mix #
+#######
 
 .PHONY: mix
 mix: mix-test mix-formatted mix-compiles
@@ -138,7 +186,9 @@ $(EMPTY_DIR)/mix-deps: mix.exs mix.lock
 	@touch $@
 
 
+#######
 # Nix #
+#######
 
 .PHONY: nix
 nix: nix-check nix-formatted
@@ -153,7 +203,9 @@ nix-formatted: flake.nix
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
 
+######
 # CI #
+######
 
 .PHONY: ci
 ci: ci-latex ci-mix ci-nix
