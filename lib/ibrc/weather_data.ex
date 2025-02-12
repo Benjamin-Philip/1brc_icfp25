@@ -19,7 +19,7 @@ defmodule Ibrc.WeatherData do
   def async_stream(dir, moniker) do
     setup()
 
-    file = "#{dir}/#{moniker}.txt"
+    file = "#{dir}/wd-#{moniker}.txt"
 
     num_measurement =
       Map.fetch!(

@@ -28,4 +28,4 @@ out
 result
 .nix-*
 .direnv
-weather_data
+data/wd-*.txt

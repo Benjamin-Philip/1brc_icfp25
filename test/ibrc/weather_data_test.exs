@@ -5,7 +5,7 @@ defmodule Ibrc.WeatherDataTest do
 
   @tag :tmp_dir
   test "async_stream/2 streams to file", %{tmp_dir: dir} do
-    file = Path.join(dir, "1K.txt")
+    file = Path.join(dir, "wd-1K.txt")
     WD.async_stream(dir, "1K")
 
     assert File.exists?(file)
