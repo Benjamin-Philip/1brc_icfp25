@@ -140,15 +140,15 @@ test: latex mix nix
 bench: large-bench small-bench eflambe
 
 .PHONY: large-bench
-large-bench:
+large-bench: wd-all
 	mix run bench/large_bench.exs
 
 .PHONY: small-bench
-small-bench:
+small-bench: wd-all
 	mix run bench/small_bench.exs
 
 .PHONY: eflambe
-eflambe:
+eflambe: wd-all
 	mix run bench/eflambe.exs
 
 #########
@@ -178,7 +178,7 @@ latex-html: $(OUT_DIR)/index.html
 mix: mix-test mix-formatted mix-compiles
 
 .PHONY: mix-test
-mix-test: $(EMPTY_DIR)/mix-test
+mix-test: $(EMPTY_DIR)/mix-test $(WD_DIR)/wd-1K.txt
 $(EMPTY_DIR)/mix-test: $(mix_src) $(EMPTY_DIR)/mix-deps
 	mix test
 	@mkdir -p $(EMPTY_DIR)
