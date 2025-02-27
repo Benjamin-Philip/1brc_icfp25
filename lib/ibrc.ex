@@ -1,5 +1,5 @@
 defmodule Ibrc do
-  @versions ~w(v0 v1)
+  @versions ~w(v0 v1 v2)
 
   def versions(), do: @versions
 

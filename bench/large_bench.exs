@@ -1,5 +1,5 @@
 sizes = ~w(10M 100M 1B)
-versions = Ibrc.versions() -- ~w(v0)
+versions = Ibrc.versions() -- ~w(v0 v1)
 
 suite =
   versions
