@@ -22,14 +22,14 @@ defmodule Ibrc.V0 do
         {min, sum, count, max} -> {min(min, temp), sum + temp, count + 1, max(max, temp)}
       end)
     end)
+    |> Enum.sort()
   end
 
   def fmt(acc) do
     data =
       acc
-      |> Enum.sort()
       |> Enum.map(fn {city, {min, sum, count, max}} ->
-        "#{city}=#{min}/#{Float.round(sum / count, 1)}/#{max}"
+        "#{city}=#{min}/#{:erlang.float_to_binary(sum / count, [:compact, decimals: 1])}/#{max}"
       end)
       |> Enum.join(", ")
 
