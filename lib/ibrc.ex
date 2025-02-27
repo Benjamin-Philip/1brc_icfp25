@@ -1,18 +1,12 @@
 defmodule Ibrc do
-  @moduledoc """
-  Documentation for `Ibrc`.
-  """
+  @versions ~w(v0)
 
-  @doc """
-  Hello world.
+  def versions(), do: @versions
 
-  ## Examples
+  for version <- @versions do
+    mod = Module.concat([:Ibrc, String.upcase(version)])
 
-      iex> Ibrc.hello()
-      :world
-
-  """
-  def hello do
-    :world
+    def report(unquote(version), file), do: apply(unquote(mod), :report, [file])
+    def report(unquote(String.to_atom(version)), file), do: apply(unquote(mod), :report, [file])
   end
 end

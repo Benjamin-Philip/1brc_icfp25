@@ -132,6 +132,25 @@ mix_src = $(wildcard **/*.ex) mix.exs
 .PHONY: test
 test: latex mix nix
 
+##############
+# Benchmarks #
+##############
+
+.PHONY: bench
+bench: large-bench small-bench eflambe
+
+.PHONY: large-bench
+large-bench:
+	mix run bench/large_bench.exs
+
+.PHONY: small-bench
+small-bench:
+	mix run bench/small_bench.exs
+
+.PHONY: eflambe
+eflambe:
+	mix run bench/eflambe.exs
+
 #########
 # LaTeX #
 #########
