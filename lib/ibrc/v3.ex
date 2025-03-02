@@ -1,5 +1,7 @@
 defmodule Ibrc.V3 do
-  def report(path, chunk_size \\ 1 * 1024 * 1024) do
+  @compile {:inline, char_to_num: 1, parse_temperature: 1}
+
+  def report(path, chunk_size \\ 128 * 1024) do
     {:ok, fd} = :prim_file.open(path, [:read, :binary])
 
     result =
@@ -36,35 +38,46 @@ defmodule Ibrc.V3 do
     fd = {atom1, atom2, %{data | owner: self()}}
 
     case :prim_file.pread(fd, pos, num) do
-      {:ok, bin} -> :binary.split(bin, "\n", [:global, :trim])
+      {:ok, bin} -> bin
       {:error, :einval} -> read(fd, {pos, num})
     end
   end
 
-  def parse(lines) do
-    Stream.map(lines, fn line ->
-      [city, temp] = :binary.split(line, ";")
-      {city, parse_temperature(temp)}
+  def parse(bin) do
+    Stream.unfold(bin, fn
+      <<>> -> nil
+      bin -> chunk_line(bin, bin, 0)
     end)
   end
 
-  defp parse_temperature(<<?-, d1, ?., d2, _::binary>>) do
-    -(char_to_num(d1) * 10 + char_to_num(d2))
+  defp chunk_line(bin, <<?;, _rest::binary>>, count) do
+    <<city::binary-size(count), ?;, rest::binary>> = bin
+    {temp, rest} = parse_temperature(rest)
+    {{city, temp}, rest}
+  end
+
+  defp chunk_line(bin, <<_c, rest::binary>>, count) do
+    chunk_line(bin, rest, count + 1)
+  end
+
+  # ex: -4.5
+  defp parse_temperature(<<?-, d1, ?., d2, "\n", rest::binary>>) do
+    {-(char_to_num(d1) * 10 + char_to_num(d2)), rest}
   end
 
   # ex: 4.5
-  defp parse_temperature(<<d1, ?., d2, _::binary>>) do
-    char_to_num(d1) * 10 + char_to_num(d2)
+  defp parse_temperature(<<d1, ?., d2, "\n", rest::binary>>) do
+    {char_to_num(d1) * 10 + char_to_num(d2), rest}
   end
 
   # ex: -45.3
-  defp parse_temperature(<<?-, d1, d2, ?., d3, _::binary>>) do
-    -(char_to_num(d1) * 100 + char_to_num(d2) * 10 + char_to_num(d3))
+  defp parse_temperature(<<?-, d1, d2, ?., d3, "\n", rest::binary>>) do
+    {-(char_to_num(d1) * 100 + char_to_num(d2) * 10 + char_to_num(d3)), rest}
   end
 
   # ex: 45.3
-  defp parse_temperature(<<d1, d2, ?., d3, _::binary>>) do
-    char_to_num(d1) * 100 + char_to_num(d2) * 10 + char_to_num(d3)
+  defp parse_temperature(<<d1, d2, ?., d3, "\n", rest::binary>>) do
+    {char_to_num(d1) * 100 + char_to_num(d2) * 10 + char_to_num(d3), rest}
   end
 
   defp char_to_num(char) do

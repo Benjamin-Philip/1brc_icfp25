@@ -1,4 +1,6 @@
 defmodule Ibrc.V2 do
+  @compile {:inline, char_to_num: 1, parse_temperature: 1}
+
   def report(path, chunk_size \\ 100_000) do
     path
     |> read
