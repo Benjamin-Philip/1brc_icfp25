@@ -178,8 +178,8 @@ latex-html: $(OUT_DIR)/index.html
 mix: mix-test mix-formatted mix-compiles
 
 .PHONY: mix-test
-mix-test: $(WD_DIR)/wd-1K.txt $(EMPTY_DIR)/mix-test
-$(EMPTY_DIR)/mix-test: $(mix_src) $(EMPTY_DIR)/mix-deps
+mix-test: $(EMPTY_DIR)/mix-test
+$(EMPTY_DIR)/mix-test: $(mix_src) $(EMPTY_DIR)/mix-deps $(WD_DIR)/wd-1K.txt
 	mix test
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
