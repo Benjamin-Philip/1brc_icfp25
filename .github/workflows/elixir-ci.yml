@@ -39,3 +39,14 @@ jobs:
       - name: Setup devShell
         run: nix develop
       - run: nix develop --command make mix-test
+
+
+  bench:
+    name: Benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - name: Setup devShell
+        run: nix develop
+      - run: nix develop --command make bench

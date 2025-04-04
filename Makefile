@@ -62,31 +62,31 @@ clean:
 ################
 WD_DIR = data
 
-$(WD_DIR)/wd-1K.txt:
+$(WD_DIR)/wd-1K.txt: mix-deps mix-compiles
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1K\")"
 
-$(WD_DIR)/wd-10K.txt:
+$(WD_DIR)/wd-10K.txt: mix-deps mix-compiles
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10K\")"
 
-$(WD_DIR)/wd-100K.txt:
+$(WD_DIR)/wd-100K.txt: mix-deps mix-compiles
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100K\")"
 
-$(WD_DIR)/wd-1M.txt:
+$(WD_DIR)/wd-1M.txt: mix-deps mix-compiles
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1M\")"
 
-$(WD_DIR)/wd-10M.txt:
+$(WD_DIR)/wd-10M.txt: mix-deps mix-compiles
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10M\")"
 
-$(WD_DIR)/wd-100M.txt:
+$(WD_DIR)/wd-100M.txt: mix-deps mix-compiles
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100M\")"
 
-$(WD_DIR)/wd-1B.txt:
+$(WD_DIR)/wd-1B.txt: mix-deps mix-compiles
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1B\")"
 
