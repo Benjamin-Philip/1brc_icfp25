@@ -62,33 +62,34 @@ clean:
 ################
 WD_DIR = data
 
-$(WD_DIR)/wd-1K.txt: $(deps_installed)
+$(WD_DIR)/wd-1K.txt:
+	echo $(deps_installed)
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1K\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1K\")"
 
-$(WD_DIR)/wd-10K.txt: $(deps_installed)
+$(WD_DIR)/wd-10K.txt:
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10K\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10K\")"
 
-$(WD_DIR)/wd-100K.txt: $(deps_installed)
+$(WD_DIR)/wd-100K.txt:
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100K\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100K\")"
 
-$(WD_DIR)/wd-1M.txt: $(deps_installed)
+$(WD_DIR)/wd-1M.txt:
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1M\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1M\")"
 
-$(WD_DIR)/wd-10M.txt: $(deps_installed)
+$(WD_DIR)/wd-10M.txt:
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10M\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10M\")"
 
-$(WD_DIR)/wd-100M.txt: $(deps_installed)
+$(WD_DIR)/wd-100M.txt:
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100M\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100M\")"
 
-$(WD_DIR)/wd-1B.txt: $(deps_installed)
+$(WD_DIR)/wd-1B.txt:
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1B\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1B\")"
 
 
 .PHONY: wd-clean
@@ -204,8 +205,6 @@ $(EMPTY_DIR)/mix-compiles: $(mix_src) $(EMPTY_DIR)/mix-deps
 	mix compile --warnings-as-errors
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
-
-deps_installed =: $(EMPTY_DIR)/mix-deps
 
 .PHONY: mix-deps
 mix-deps: $(EMPTY_DIR)/mix-deps
