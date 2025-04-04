@@ -23,6 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
+      - name: Setup devShell
+        run: nix develop
       - run: nix develop --command make nix-formatted
 
   builds:
@@ -39,4 +41,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
+      - name: Setup devShell
+        run: nix develop
       - run: nix develop --command echo test
