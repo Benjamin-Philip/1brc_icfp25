@@ -49,4 +49,9 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - name: Setup devShell
         run: nix develop
+      - name: Cache Weather Data
+        uses: actions/cache@v4
+        with:
+          key: wd-${{ hashFiles('lib/ibrc/weather_data.ex') }}
+          path: data/wd-*.txt
       - run: nix develop --command make bench
