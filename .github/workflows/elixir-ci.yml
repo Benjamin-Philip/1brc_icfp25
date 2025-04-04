@@ -25,8 +25,9 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - name: Cache Nix
         uses: actions/cache@v4
-        key: nix-${{ hashFiles('flake.lock') }}
-        path: /nix/store
+        with:
+          key: nix-${{ hashFiles('flake.lock') }}
+          path: /nix/store
       - name: Setup devShell
         run: nix develop
       - run: nix develop --command make mix-compiles
