@@ -63,32 +63,33 @@ clean:
 WD_DIR = data
 
 $(WD_DIR)/wd-1K.txt:
+	echo $(deps_installed)
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1K\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1K\")"
 
 $(WD_DIR)/wd-10K.txt:
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10K\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10K\")"
 
 $(WD_DIR)/wd-100K.txt:
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100K\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100K\")"
 
 $(WD_DIR)/wd-1M.txt:
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1M\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1M\")"
 
 $(WD_DIR)/wd-10M.txt:
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10M\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10M\")"
 
 $(WD_DIR)/wd-100M.txt:
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100M\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100M\")"
 
 $(WD_DIR)/wd-1B.txt:
 	@mkdir -p $(WD_DIR)
-	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1B\")"
+	mix eval --no-deps-check "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1B\")"
 
 
 .PHONY: wd-clean
@@ -137,18 +138,26 @@ test: latex mix nix
 ##############
 
 .PHONY: bench
-bench: large-bench small-bench eflambe
+bench: large-bench small-bench bench-chunk eflambe
 
 .PHONY: large-bench
-large-bench: wd-all
+large-bench: wd-all mix-deps
 	mix run bench/large_bench.exs
 
 .PHONY: small-bench
-small-bench: wd-all
+small-bench: wd-all mix-deps
 	mix run bench/small_bench.exs
 
+chunk_files = $(wildcard bench/chunk_size_*.exs)
+
+.PHONY: bench-chunk
+bench-chunk: wd-all mix-deps $(chunk_files)
+	for size in $(chunk_files); do \
+		mix run $$size; \
+	done
+
 .PHONY: eflambe
-eflambe: wd-all
+eflambe: wd-all mix-deps
 	mix run bench/eflambe.exs
 
 #########
