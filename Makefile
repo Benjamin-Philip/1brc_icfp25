@@ -141,23 +141,23 @@ test: latex mix nix
 bench: large-bench small-bench bench-chunk eflambe
 
 .PHONY: large-bench
-large-bench: wd-all
+large-bench: wd-all mix-deps
 	mix run bench/large_bench.exs
 
 .PHONY: small-bench
-small-bench: wd-all
+small-bench: wd-all mix-deps
 	mix run bench/small_bench.exs
 
 chunk_files = $(wildcard bench/chunk_size_*.exs)
 
 .PHONY: bench-chunk
-bench-chunk: wd-all $(chunk_files)
+bench-chunk: wd-all mix-deps $(chunk_files)
 	for size in $(chunk_files); do \
 		mix run $$size; \
 	done
 
 .PHONY: eflambe
-eflambe: wd-all
+eflambe: wd-all mix-deps
 	mix run bench/eflambe.exs
 
 #########
