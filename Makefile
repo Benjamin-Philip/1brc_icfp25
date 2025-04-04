@@ -62,31 +62,31 @@ clean:
 ################
 WD_DIR = data
 
-$(WD_DIR)/wd-1K.txt: mix-deps mix-compiles
+$(WD_DIR)/wd-1K.txt: $(deps_installed)
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1K\")"
 
-$(WD_DIR)/wd-10K.txt: mix-deps mix-compiles
+$(WD_DIR)/wd-10K.txt: $(deps_installed)
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10K\")"
 
-$(WD_DIR)/wd-100K.txt: mix-deps mix-compiles
+$(WD_DIR)/wd-100K.txt: $(deps_installed)
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100K\")"
 
-$(WD_DIR)/wd-1M.txt: mix-deps mix-compiles
+$(WD_DIR)/wd-1M.txt: $(deps_installed)
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1M\")"
 
-$(WD_DIR)/wd-10M.txt: mix-deps mix-compiles
+$(WD_DIR)/wd-10M.txt: $(deps_installed)
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"10M\")"
 
-$(WD_DIR)/wd-100M.txt: mix-deps mix-compiles
+$(WD_DIR)/wd-100M.txt: $(deps_installed)
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"100M\")"
 
-$(WD_DIR)/wd-1B.txt: mix-deps mix-compiles
+$(WD_DIR)/wd-1B.txt: $(deps_installed)
 	@mkdir -p $(WD_DIR)
 	mix eval "Ibrc.WeatherData.async_stream(\"$(WD_DIR)\", \"1B\")"
 
@@ -137,7 +137,7 @@ test: latex mix nix
 ##############
 
 .PHONY: bench
-bench: large-bench small-bench eflambe
+bench: large-bench small-bench bench-chunk eflambe
 
 .PHONY: large-bench
 large-bench: wd-all
@@ -146,6 +146,14 @@ large-bench: wd-all
 .PHONY: small-bench
 small-bench: wd-all
 	mix run bench/small_bench.exs
+
+chunk_files = $(wildcard bench/chunk_size_*.exs)
+
+.PHONY: bench-chunk
+bench-chunk: wd-all $(chunk_files)
+	for size in $(chunk_files); do \
+		mix run $$size; \
+	done
 
 .PHONY: eflambe
 eflambe: wd-all
@@ -196,6 +204,8 @@ $(EMPTY_DIR)/mix-compiles: $(mix_src) $(EMPTY_DIR)/mix-deps
 	mix compile --warnings-as-errors
 	@mkdir -p $(EMPTY_DIR)
 	@touch $@
+
+deps_installed =: $(EMPTY_DIR)/mix-deps
 
 .PHONY: mix-deps
 mix-deps: $(EMPTY_DIR)/mix-deps
