@@ -56,7 +56,7 @@
 
         nixfmt = nixpkgs.legacyPackages.${system}.nixfmt-rfc-style;
 
-        erlang = pkgs.beam.packagesWith pkgs.beam.interpreters.erlang_27;
+        erlang = pkgs.beam.packagesWith pkgs.beam.interpreters.erlang_28;
         act = if builtins.getEnv "CI" != "true" then [ pkgs.act ] else [ ];
         devInputs =
           [
